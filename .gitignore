@@ -1,0 +1,23 @@
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# === Virtual environment ===
+venv/
+.envrc
+.venv/
+
+# === IDE/editor files ===
+.vscode/
+.idea/
+.DS_Store
+
+# === Environment files (secrets) ===
+.env
+
+# === Byte-compiled/misc ===
+*.sqlite3
+*.db
