@@ -1,12 +1,9 @@
-# app/services/prompt_builder.py
 from textwrap import dedent
-from typing import List, Dict
+from typing import List
 from app.schemas.copy import CopyRequest
+from app.services.llm.types import Message, Messages  # keep if you return Messages
 
-def build_prompt(req: CopyRequest) -> List[Dict[str, str]]:
-    """Return ordered chat messages for OpenAI API."""
-
-    # === System role ===
+def build_prompt(req: CopyRequest) -> Messages:
     system_msg = dedent("""
     You are an expert direct-response copywriter.
     - Always follow constraints exactly.
@@ -14,10 +11,7 @@ def build_prompt(req: CopyRequest) -> List[Dict[str, str]]:
     - Write in clear, persuasive language.
     - Avoid fluff, filler, and unverifiable claims.
     """)
-
-    # === User message (structured facts + style/constraints) ===
-    user_parts = []
-
+    user_parts: List[str] = []
     user_parts.append(f"Content type: {req.content_type}")
     if req.audience:
         user_parts.append(f"Audience: {req.audience}")
@@ -28,12 +22,10 @@ def build_prompt(req: CopyRequest) -> List[Dict[str, str]]:
     if req.style:
         user_parts.append(f"Style controls: {req.style}")
     if req.brand_sample:
-        user_parts.append(f"Brand voice sample (reference, do not copy verbatim):\n{req.brand_sample}")
+        user_parts.append("Brand voice sample (reference, do not copy verbatim):\n" + req.brand_sample)
     if req.keywords:
-        kws = ", ".join(req.keywords)
-        user_parts.append(f"Keywords to weave in naturally: {kws}")
+        user_parts.append("Keywords to weave in naturally: " + ", ".join(req.keywords))
 
-    # Guardrails
     guardrails = [
         "Constraints:",
         "- Write for clarity and persuasion; connect features to outcomes.",
@@ -46,12 +38,8 @@ def build_prompt(req: CopyRequest) -> List[Dict[str, str]]:
     else:
         guardrails.append("Do not include a call-to-action.")
 
-    # Assemble user content
     user_msg = "\n".join(user_parts + ["", *guardrails])
 
-    # Return as chat messages
-    return [
-        {"role": "system", "content": system_msg.strip()},
-        {"role": "user", "content": user_msg.strip()},
-        # optional few-shot example could go here
-    ]
+    system: Message = {"role": "system", "content": system_msg.strip()}
+    user: Message = {"role": "user", "content": user_msg.strip()}
+    return [system, user]
