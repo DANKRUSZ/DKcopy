@@ -1,39 +1,32 @@
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator
 
-
-
 class CopyRequest(BaseModel):
-    # Required
     content_type: str
     audience: str
     product_info: str
     cta: bool
-
-    # Optional
+    
     tone_of_voice: Optional[str] = None
     style: Optional[str] = None
     brand_sample: Optional[str] = Field(default=None, max_length=3000)
     keywords: Optional[List[str]] = None
-
-    # raise error for empty fields in required text + trim
+    
     @field_validator("content_type", "audience", "product_info")
     @classmethod
-    def _required_non_empty(cls, v: str) -> str:
+    def required_non_empty(cls, v: str) -> str:
         v = v.strip()
         if not v:
             raise ValueError("must not be empty or whitespace")
         return v
     
-    # convert empty to None
     @field_validator("tone_of_voice", "style", "brand_sample", mode="before")
     @classmethod
-    def _optional_trim_or_none(cls, v: Optional[str]) -> Optional[str]:
+    def optional_trim_or_none(cls, v: Optional[str]) -> Optional[str]:
         if v is None:
             return None
         v = v.strip()
-        return v or None 
-
+        return v or None
 
 class CopyResponse(BaseModel):
     generated_copy: str
@@ -41,4 +34,3 @@ class CopyResponse(BaseModel):
     tone_used: str
     content_type: str
     metadata: Dict[str, Any] = Field(default_factory=dict)
-

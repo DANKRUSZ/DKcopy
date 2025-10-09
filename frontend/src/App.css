@@ -1,0 +1,277 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8f0e8 100%);
+  min-height: 100vh;
+}
+
+#root {
+  padding: 2rem;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+h1 {
+  color: #2d5016;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #5a7c3e;
+  font-size: 1.1rem;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(45, 80, 22, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  color: #2d5016;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.required {
+  color: #c53030;
+}
+
+input[type="text"],
+textarea,
+select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  font-family: inherit;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #5a7c3e;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #5a7c3e;
+}
+
+.checkbox-group label {
+  margin: 0;
+  cursor: pointer;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+button {
+  flex: 1;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: #5a7c3e;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #4a6632;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 124, 62, 0.3);
+}
+
+.btn-primary:disabled {
+  background: #a5c48f;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #2d5016;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e0;
+}
+
+.result-section {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.result-title {
+  color: #2d5016;
+  font-size: 1.5rem;
+}
+
+.result-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #5a7c3e;
+  margin-bottom: 1rem;
+}
+
+.result-copy {
+  background: #f7fafc;
+  border-left: 4px solid #5a7c3e;
+  padding: 1.5rem;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  line-height: 1.8;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.keyword-tag {
+  background: #e6f4ea;
+  color: #2d5016;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #5a7c3e;
+}
+
+.spinner {
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #5a7c3e;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error {
+  background: #fee;
+  border-left: 4px solid #c53030;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #742a2a;
+  margin-top: 1rem;
+}
+
+.copy-button {
+  background: #5a7c3e;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.copy-button:hover {
+  background: #4a6632;
+}
+
+.copy-button.copied {
+  background: #38a169;
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+}
