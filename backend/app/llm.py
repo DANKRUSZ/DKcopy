@@ -1,7 +1,7 @@
 import json
 from typing import List
 from anthropic import AsyncAnthropic
-from anthropic.types import TextBlock, Message
+from anthropic.types import TextBlock
 from .config import settings
 from .schemas import CopyRequest
 
@@ -17,35 +17,53 @@ class CopywritingLLM:
             max_tokens=1024,
             messages=[{
                 "role": "user",
-                "content": f"""You are an SEO assistant. Generate 5-10 relevant SEO keywords for this copywriting project.
+                "content": f"""Generate 5-10 relevant SEO keywords for this copywriting project.
 
 Audience: {audience}
 Product/Service: {product_info}
 
-Return ONLY a JSON array of lowercase keyword strings, nothing else. Example: ["keyword1", "keyword2", "keyword3"]"""
+Return ONLY a JSON array of lowercase keyword strings. No markdown, no code blocks, no explanations. Just the raw JSON array.
+
+Example format: ["keyword1", "keyword2", "keyword3"]"""
             }]
         )
         
         # Extract text from the response content
         text = ""
         for block in message.content:
-            if isinstance(block, TextBlock):
+            if isinstance(block, TextBlock) and hasattr(block, 'text'):
                 text = block.text
                 break
         
+        # Clean up any markdown code block formatting
+        text = text.strip()
+        if text.startswith("```"):
+            # Remove markdown code blocks
+            lines = text.split("\n")
+            # Remove first line (```json or ```)
+            lines = lines[1:]
+            # Remove last line (```)
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+            text = "\n".join(lines).strip()
+        
         try:
-            keywords = json.loads(text.strip())
+            keywords = json.loads(text)
             if not isinstance(keywords, list):
                 raise ValueError("not a list")
             keywords = [str(k).strip().lower() for k in keywords if str(k).strip()]
         except:
             # Fallback parsing
             keywords = [k.strip().lower() for k in text.replace("\n", ",").split(",") if k.strip()]
+            # Remove any remaining quotes or brackets
+            keywords = [k.strip('"\'[]') for k in keywords]
         
         # Dedupe and limit
         seen = set()
         result = []
         for k in keywords:
+            # Clean up any remaining formatting
+            k = k.strip('"\'[]')
             if k and k not in seen:
                 seen.add(k)
                 result.append(k)
@@ -71,7 +89,7 @@ Return ONLY a JSON array of lowercase keyword strings, nothing else. Example: ["
         # Extract text from the response content
         text = ""
         for block in message.content:
-            if isinstance(block, TextBlock):
+            if isinstance(block, TextBlock) and hasattr(block, 'text'):
                 text = block.text
                 break
         
