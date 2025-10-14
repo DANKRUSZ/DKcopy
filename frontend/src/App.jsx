@@ -50,7 +50,7 @@ function App() {
     };
 
     try {
-      const response = await fetch('dkcopy-production.up.railway.app', {
+      const response = await fetch('https://dkcopy-production.up.railway.app', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
