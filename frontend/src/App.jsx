@@ -50,7 +50,7 @@ function App() {
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/copy/generate', {
+      const response = await fetch('dkcopy-production.up.railway.app', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
