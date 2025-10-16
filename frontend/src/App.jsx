@@ -4,6 +4,7 @@ import './App.css';
 function App() {
   const [formData, setFormData] = useState({
     content_type: '',
+    content_type_other: '',
     audience: '',
     product_info: '',
     cta: true,
@@ -39,7 +40,7 @@ function App() {
       .filter(k => k);
 
     const payload = {
-      content_type: formData.content_type,
+      content_type: formData.content_type === 'Other' ? formData.content_type_other : formData.content_type,
       audience: formData.audience,
       product_info: formData.product_info,
       cta: formData.cta,
@@ -50,7 +51,7 @@ function App() {
     };
 
     try {
-      const response = await fetch('https://dkcopy-production.up.railway.app/api/v1/copy/generate', {
+      const response = await fetch('http://localhost:8000/api/v1/copy/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,6 +76,7 @@ function App() {
   const handleReset = () => {
     setFormData({
       content_type: '',
+      content_type_other: '',
       audience: '',
       product_info: '',
       cta: true,
@@ -118,6 +120,7 @@ function App() {
               <option value="">Select content type...</option>
               <option value="Landing page hero">Landing Page Hero</option>
               <option value="Email subject line">Email Subject Line</option>
+              <option value="Email intro">Email Intro</option>
               <option value="Social media post">Social Media Post</option>
               <option value="Product description">Product Description</option>
               <option value="Facebook ad">Facebook Ad</option>
@@ -127,6 +130,23 @@ function App() {
               <option value="Other">Other</option>
             </select>
           </div>
+
+          {formData.content_type === 'Other' && (
+            <div className="form-group">
+              <label htmlFor="content_type_other">
+                Specify Content Type <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="content_type_other"
+                name="content_type_other"
+                value={formData.content_type_other}
+                onChange={handleChange}
+                placeholder="e.g., Press release, Video script, Billboard copy"
+                required
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="audience">
