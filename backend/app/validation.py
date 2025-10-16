@@ -1,4 +1,4 @@
-MAX_COPY_LENGTH = 2000
+MAX_COPY_LENGTH = 3000
 
 def validate_copy_output(text: str, require_cta: bool) -> None:
     """Validate generated copy meets requirements"""
