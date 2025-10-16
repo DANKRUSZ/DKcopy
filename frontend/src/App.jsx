@@ -51,7 +51,7 @@ function App() {
     };
 
     try {
-      const response = await fetch('https://d-kcopy.vercel.app/api/v1/copy/generate', {
+      const response = await fetch('https://dkcopy-production.up.railway.app/api/v1/copy/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
