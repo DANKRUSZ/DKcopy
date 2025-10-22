@@ -127,26 +127,38 @@ Example format: ["keyword1", "keyword2", "keyword3"]"""
 
         if "subject line" in content_lower or "headline" in content_lower:
             return "Keep extremely brief: 5-10 words maximum"
+    
+        if "tweet" in content_lower:
+            return "Keep very brief: 280 characters maximum"
         
-        if "social media" in content_lower or "tweet" in content_lower:
+        if "social media" in content_lower or "social post" in content_lower:
             return "Keep concise: 50-150 words"
-    
-        if "ad" in content_lower or "google" in content_lower:
+        
+        if "google" in content_lower and "ad" in content_lower:  
             return "Keep brief and punchy: 50-100 words"
-    
+        
+        if "facebook ad" in content_lower:
+            return "Keep engaging: 100-150 words"
+        
         if "email intro" in content_lower:
             return "Keep brief: 75-150 words maximum"
-    
+        
+        if "blog intro" in content_lower:  
+            return "Keep concise: 100-200 words - hook the reader and transition to main content"
+        
         if "product description" in content_lower:
             return "Aim for 200-350 words"
         
         if "landing page" in content_lower or "hero" in content_lower:
             return "Aim for 250-400 words"
         
-        if "blog" in content_lower or "article" in content_lower:
-            return "Aim for 400-600 words"
         
-        # default for unknown types
+        if "blog" in content_lower or "article" in content_lower:  
+            return "Aim for 800-1200 words for a complete article"
+        
+        if "sales page" in content_lower or "long form" in content_lower:
+            return "Aim for 600-1000 words"
+        
         return "Be concise and impactful"
 
 
