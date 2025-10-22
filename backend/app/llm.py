@@ -28,21 +28,18 @@ Example format: ["keyword1", "keyword2", "keyword3"]"""
             }]
         )
         
-        # Extract text from the response content
+        # extract text from the response content
         text = ""
         for block in message.content:
             if isinstance(block, TextBlock) and hasattr(block, 'text'):
                 text = block.text
                 break
         
-        # Clean up any markdown code block formatting
+        # clean up any markdown code block formatting
         text = text.strip()
         if text.startswith("```"):
-            # Remove markdown code blocks
             lines = text.split("\n")
-            # Remove first line (```json or ```)
             lines = lines[1:]
-            # Remove last line (```)
             if lines and lines[-1].strip() == "```":
                 lines = lines[:-1]
             text = "\n".join(lines).strip()
@@ -53,16 +50,12 @@ Example format: ["keyword1", "keyword2", "keyword3"]"""
                 raise ValueError("not a list")
             keywords = [str(k).strip().lower() for k in keywords if str(k).strip()]
         except:
-            # Fallback parsing
             keywords = [k.strip().lower() for k in text.replace("\n", ",").split(",") if k.strip()]
-            # Remove any remaining quotes or brackets
             keywords = [k.strip('"\'[]') for k in keywords]
         
-        # Dedupe and limit
         seen = set()
         result = []
         for k in keywords:
-            # Clean up any remaining formatting
             k = k.strip('"\'[]')
             if k and k not in seen:
                 seen.add(k)
@@ -86,7 +79,7 @@ Example format: ["keyword1", "keyword2", "keyword3"]"""
             }]
         )
         
-        # Extract text from the response content
+        # extract text from the response content
         text = ""
         for block in message.content:
             if isinstance(block, TextBlock) and hasattr(block, 'text'):
@@ -116,9 +109,45 @@ Example format: ["keyword1", "keyword2", "keyword3"]"""
         parts.append("- UK English spelling")
         parts.append("- No meta commentary or headings")
         parts.append("- Don't invent product details")
+
+        # adding length guidance based on content type
+        length_guidance = self._get_length_guidance(req.content_type)
+        if length_guidance:
+            parts.append(f"- {length_guidance}")
+
+
         parts.append(f"- {'End with ONE clear call-to-action' if req.cta else 'Do NOT include a call-to-action'}")
         
         return "\n".join(parts)
+    
+
+    def _get_length_guidance(self, content_type: str) -> str:
+        """Return appropriate length guidance based on content type"""
+        content_lower = content_type.lower()
+
+        if "subject line" in content_lower or "headline" in content_lower:
+            return "Keep extremely brief: 5-10 words maximum"
+        
+        if "social media" in content_lower or "tweet" in content_lower:
+            return "Keep concise: 50-150 words"
+    
+        if "ad" in content_lower or "google" in content_lower:
+            return "Keep brief and punchy: 50-100 words"
+    
+        if "email intro" in content_lower:
+            return "Keep brief: 75-150 words maximum"
+    
+        if "product description" in content_lower:
+            return "Aim for 200-350 words"
+        
+        if "landing page" in content_lower or "hero" in content_lower:
+            return "Aim for 250-400 words"
+        
+        if "blog" in content_lower or "article" in content_lower:
+            return "Aim for 400-600 words"
+        
+        # default for unknown types
+        return "Be concise and impactful"
 
 
 class FakeCopywritingLLM(CopywritingLLM):
