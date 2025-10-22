@@ -72,7 +72,10 @@ Example format: ["keyword1", "keyword2", "keyword3"]"""
 - Always follow constraints exactly.
 - Write in clear, persuasive language.
 - Avoid fluff, filler, and unverifiable claims.
-- Return ONLY the copy itself, no meta commentary.""",
+- Return ONLY the copy itself, no meta commentary.
+- Write naturally as if speaking to a person, NOT optimizing for search engines.
+- Do NOT create multiple keyword variations (e.g., don't say "fitness program," "workout routine," and "exercise plan" in the same copy).
+- Use specific product/service terms once or twice, then refer to "it," "this," "the product," or "the service" thereafter.""",
             messages=[{
                 "role": "user",
                 "content": self._build_prompt(request, keywords)
@@ -101,8 +104,10 @@ Example format: ["keyword1", "keyword2", "keyword3"]"""
             parts.append(f"Style controls: {req.style}")
         if req.brand_sample:
             parts.append(f"Brand voice sample (reference, do not copy):\n{req.brand_sample}")
+
         if keywords:
             parts.append(f"Keywords to weave in naturally: {', '.join(keywords)}")
+            parts.append("IMPORTANT: Use ONLY these keywords (maximum 1-2 mentions each). Do not geenarte keyword variations of synonyms.")
         
         parts.append("\nConstraints:")
         parts.append("- Connect features to outcomes")
@@ -137,8 +142,11 @@ Example format: ["keyword1", "keyword2", "keyword3"]"""
         if "google" in content_lower and "ad" in content_lower:  
             return "Keep brief and punchy: 50-100 words"
         
-        if "facebook ad" in content_lower:
+        if "facebook" in content_lower and "ad" in content_lower:
             return "Keep engaging: 100-150 words"
+        
+        if "ad" in content_lower:
+            return "Keep concise: 75-100 words"
         
         if "email intro" in content_lower:
             return "Keep brief: 75-150 words maximum"
