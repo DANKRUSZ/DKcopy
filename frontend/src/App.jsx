@@ -125,7 +125,7 @@ function App() {
         keywords: keywords
       };
 
-      const response = await fetch('http://localhost:5000/generate', {
+      const response = await fetch('https://dkcopy-production.up.railway.app/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
