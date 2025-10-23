@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import './App.css';
 
+// Use environment variable for API URL, fallback to localhost for development
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const TEMPLATES = [
   {
     id: 'landing-hero',
@@ -31,6 +34,13 @@ const TEMPLATES = [
     value: 'Social media post'
   },
   {
+    id: 'tweet',
+    icon: '🐦',
+    title: 'Tweet',
+    description: 'Craft concise, engaging tweets within 280 characters',
+    value: 'Tweet'
+  },
+  {
     id: 'product-desc',
     icon: '📦',
     title: 'Product Description',
@@ -45,18 +55,39 @@ const TEMPLATES = [
     value: 'Blog post'
   },
   {
+    id: 'blog-intro',
+    icon: '✍️',
+    title: 'Blog Intro',
+    description: 'Hook readers with compelling blog introductions',
+    value: 'Blog intro'
+  },
+  {
+    id: 'google-ad',
+    icon: '🔍',
+    title: 'Google Ad',
+    description: 'Create brief, punchy Google ad copy that converts',
+    value: 'Google ad'
+  },
+  {
+    id: 'facebook-ad',
+    icon: '👥',
+    title: 'Facebook Ad',
+    description: 'Write engaging Facebook ad copy that stops the scroll',
+    value: 'Facebook ad'
+  },
+  {
     id: 'ad-copy',
     icon: '💰',
     title: 'Ad Copy',
-    description: 'Create high-converting ad copy for all platforms',
+    description: 'Create high-converting ad copy for various platforms',
     value: 'Ad copy'
   },
   {
-    id: 'video-script',
-    icon: '🎬',
-    title: 'Video Script',
-    description: 'Write compelling scripts for video content',
-    value: 'Video script'
+    id: 'sales-page',
+    icon: '💼',
+    title: 'Sales Page',
+    description: 'Write persuasive long-form sales copy that converts',
+    value: 'Sales page'
   },
   {
     id: 'other',
@@ -125,7 +156,7 @@ function App() {
         keywords: keywords
       };
 
-      const response = await fetch('https://dkcopy-production.up.railway.app/', {
+      const response = await fetch(`${API_URL}/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
