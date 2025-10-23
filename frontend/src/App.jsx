@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import './App.css';
 
-// Template cards based on your content types
 const TEMPLATES = [
   {
     id: 'landing-hero',
@@ -69,22 +68,24 @@ const TEMPLATES = [
 ];
 
 function App() {
-  const [view, setView] = useState('gallery'); // 'gallery' or 'editor'
+  const [view, setView] = useState('gallery');
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [formData, setFormData] = useState({
-    productInfo: '',
-    targetAudience: '',
-    contentType: ''
+    content_type: '',
+    content_type_other: '',
+    audience: '',
+    product_info: '',
+    tone_of_voice: '',
+    style: '',
+    brand_sample: '',
+    keywords: '',
+    cta: true
   });
   const [generatedContent, setGeneratedContent] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
-
-  // Floating label states
-  const [focusedFields, setFocusedFields] = useState({
-    productInfo: false,
-    targetAudience: false
-  });
+  const [focusedFields, setFocusedFields] = useState({});
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -93,7 +94,11 @@ function App() {
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);
-    setFormData({ ...formData, contentType: template.value });
+    setFormData({ 
+      ...formData, 
+      content_type: template.value,
+      content_type_other: ''
+    });
     setView('editor');
     showToast(`${template.title} template selected`, 'success');
   };
@@ -102,14 +107,30 @@ function App() {
     e.preventDefault();
     setLoading(true);
     setGeneratedContent('');
+    setIsEditing(false);
 
     try {
+      const keywords = formData.keywords 
+        ? formData.keywords.split(',').map(k => k.trim()).filter(k => k)
+        : null;
+
+      const payload = {
+        content_type: formData.content_type === 'Other' ? formData.content_type_other : formData.content_type,
+        audience: formData.audience,
+        product_info: formData.product_info,
+        cta: formData.cta,
+        tone_of_voice: formData.tone_of_voice || null,
+        style: formData.style || null,
+        brand_sample: formData.brand_sample || null,
+        keywords: keywords
+      };
+
       const response = await fetch('http://localhost:5000/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -128,9 +149,10 @@ function App() {
   };
 
   const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: type === 'checkbox' ? checked : value,
     });
   };
 
@@ -138,10 +160,17 @@ function App() {
     setView('gallery');
     setSelectedTemplate(null);
     setGeneratedContent('');
+    setIsEditing(false);
     setFormData({
-      productInfo: '',
-      targetAudience: '',
-      contentType: ''
+      content_type: '',
+      content_type_other: '',
+      audience: '',
+      product_info: '',
+      tone_of_voice: '',
+      style: '',
+      brand_sample: '',
+      keywords: '',
+      cta: true
     });
   };
 
@@ -160,9 +189,12 @@ function App() {
     }
   };
 
+  const handleContentEdit = (e) => {
+    setGeneratedContent(e.target.value);
+  };
+
   return (
     <div className="app">
-      {/* Toast Notification */}
       {toast.show && (
         <div className={`toast toast-${toast.type}`}>
           <span className="toast-icon">
@@ -212,21 +244,65 @@ function App() {
           <div className="editor-content">
             <div className="editor-form">
               <form onSubmit={handleSubmit}>
+                {formData.content_type === 'Other' && (
+                  <div className="form-group">
+                    <div className="floating-label-wrapper">
+                      <input
+                        type="text"
+                        id="content_type_other"
+                        name="content_type_other"
+                        value={formData.content_type_other}
+                        onChange={handleInputChange}
+                        onFocus={() => handleFocus('content_type_other')}
+                        onBlur={(e) => handleBlur('content_type_other', e.target.value)}
+                        required
+                      />
+                      <label
+                        htmlFor="content_type_other"
+                        className={focusedFields.content_type_other || formData.content_type_other ? 'active' : ''}
+                      >
+                        Specify Content Type <span className="required">*</span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <div className="floating-label-wrapper">
+                    <input
+                      type="text"
+                      id="audience"
+                      name="audience"
+                      value={formData.audience}
+                      onChange={handleInputChange}
+                      onFocus={() => handleFocus('audience')}
+                      onBlur={(e) => handleBlur('audience', e.target.value)}
+                      required
+                    />
+                    <label
+                      htmlFor="audience"
+                      className={focusedFields.audience || formData.audience ? 'active' : ''}
+                    >
+                      Target Audience <span className="required">*</span>
+                    </label>
+                  </div>
+                </div>
+
                 <div className="form-group">
                   <div className="floating-label-wrapper">
                     <textarea
-                      id="productInfo"
-                      name="productInfo"
-                      value={formData.productInfo}
+                      id="product_info"
+                      name="product_info"
+                      value={formData.product_info}
                       onChange={handleInputChange}
-                      onFocus={() => handleFocus('productInfo')}
-                      onBlur={(e) => handleBlur('productInfo', e.target.value)}
+                      onFocus={() => handleFocus('product_info')}
+                      onBlur={(e) => handleBlur('product_info', e.target.value)}
                       required
-                      rows="5"
+                      rows="4"
                     />
                     <label
-                      htmlFor="productInfo"
-                      className={focusedFields.productInfo || formData.productInfo ? 'active' : ''}
+                      htmlFor="product_info"
+                      className={focusedFields.product_info || formData.product_info ? 'active' : ''}
                     >
                       Product/Service Information <span className="required">*</span>
                     </label>
@@ -235,23 +311,93 @@ function App() {
 
                 <div className="form-group">
                   <div className="floating-label-wrapper">
-                    <textarea
-                      id="targetAudience"
-                      name="targetAudience"
-                      value={formData.targetAudience}
+                    <input
+                      type="text"
+                      id="tone_of_voice"
+                      name="tone_of_voice"
+                      value={formData.tone_of_voice}
                       onChange={handleInputChange}
-                      onFocus={() => handleFocus('targetAudience')}
-                      onBlur={(e) => handleBlur('targetAudience', e.target.value)}
-                      required
-                      rows="5"
+                      onFocus={() => handleFocus('tone_of_voice')}
+                      onBlur={(e) => handleBlur('tone_of_voice', e.target.value)}
                     />
                     <label
-                      htmlFor="targetAudience"
-                      className={focusedFields.targetAudience || formData.targetAudience ? 'active' : ''}
+                      htmlFor="tone_of_voice"
+                      className={focusedFields.tone_of_voice || formData.tone_of_voice ? 'active' : ''}
                     >
-                      Target Audience <span className="required">*</span>
+                      Tone of Voice
                     </label>
                   </div>
+                </div>
+
+                <div className="form-group">
+                  <div className="floating-label-wrapper">
+                    <input
+                      type="text"
+                      id="style"
+                      name="style"
+                      value={formData.style}
+                      onChange={handleInputChange}
+                      onFocus={() => handleFocus('style')}
+                      onBlur={(e) => handleBlur('style', e.target.value)}
+                    />
+                    <label
+                      htmlFor="style"
+                      className={focusedFields.style || formData.style ? 'active' : ''}
+                    >
+                      Style Controls
+                    </label>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <div className="floating-label-wrapper">
+                    <textarea
+                      id="brand_sample"
+                      name="brand_sample"
+                      value={formData.brand_sample}
+                      onChange={handleInputChange}
+                      onFocus={() => handleFocus('brand_sample')}
+                      onBlur={(e) => handleBlur('brand_sample', e.target.value)}
+                      rows="3"
+                    />
+                    <label
+                      htmlFor="brand_sample"
+                      className={focusedFields.brand_sample || formData.brand_sample ? 'active' : ''}
+                    >
+                      Brand Voice Sample
+                    </label>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <div className="floating-label-wrapper">
+                    <input
+                      type="text"
+                      id="keywords"
+                      name="keywords"
+                      value={formData.keywords}
+                      onChange={handleInputChange}
+                      onFocus={() => handleFocus('keywords')}
+                      onBlur={(e) => handleBlur('keywords', e.target.value)}
+                    />
+                    <label
+                      htmlFor="keywords"
+                      className={focusedFields.keywords || formData.keywords ? 'active' : ''}
+                    >
+                      Keywords (comma-separated)
+                    </label>
+                  </div>
+                </div>
+
+                <div className="form-group checkbox-group">
+                  <input
+                    type="checkbox"
+                    id="cta"
+                    name="cta"
+                    checked={formData.cta}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="cta">Include Call-to-Action</label>
                 </div>
 
                 <button type="submit" className="generate-button" disabled={loading}>
@@ -282,16 +428,31 @@ function App() {
                   <div className="preview-header">
                     <h3>Generated Content</h3>
                     <div className="preview-actions">
+                      <button 
+                        className="action-btn edit-btn" 
+                        onClick={() => setIsEditing(!isEditing)}
+                      >
+                        {isEditing ? '👁️ Preview' : '✏️ Edit'}
+                      </button>
                       <button className="action-btn copy-btn" onClick={handleCopy}>
                         📋 Copy
                       </button>
                       <button className="action-btn regenerate-btn" onClick={handleSubmit}>
-                        🔄 Generate Another
+                        🔄 Regenerate
                       </button>
                     </div>
                   </div>
                   <div className="preview-content">
-                    {generatedContent}
+                    {isEditing ? (
+                      <textarea
+                        className="content-editor"
+                        value={generatedContent}
+                        onChange={handleContentEdit}
+                        rows="15"
+                      />
+                    ) : (
+                      <div className="content-display">{generatedContent}</div>
+                    )}
                   </div>
                 </div>
               ) : (
