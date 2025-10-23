@@ -1,23 +1,21 @@
 import { useState } from 'react';
 import './App.css';
 
-// Template cards based on content types
+// Template cards based on your content types
 const TEMPLATES = [
   {
     id: 'landing-hero',
     icon: '🌟',
     title: 'Landing Page Hero',
     description: 'Create compelling hero sections that grab attention and convert visitors',
-    value: 'Landing page hero',
-    popular: true
+    value: 'Landing page hero'
   },
   {
     id: 'email-intro',
     icon: '📧',
     title: 'Email Intro',
     description: 'Hook readers with engaging email openings that get clicks',
-    value: 'Email intro',
-    popular: true
+    value: 'Email intro'
   },
   {
     id: 'email-subject',
@@ -31,16 +29,14 @@ const TEMPLATES = [
     icon: '📱',
     title: 'Social Media Post',
     description: 'Generate scroll-stopping social content for all platforms',
-    value: 'Social media post',
-    popular: true
+    value: 'Social media post'
   },
   {
     id: 'product-desc',
     icon: '📦',
     title: 'Product Description',
     description: 'Craft persuasive product descriptions that drive sales',
-    value: 'Product description',
-    popular: true
+    value: 'Product description'
   },
   {
     id: 'blog-post',
@@ -62,11 +58,18 @@ const TEMPLATES = [
     title: 'Video Script',
     description: 'Write compelling scripts for video content',
     value: 'Video script'
+  },
+  {
+    id: 'other',
+    icon: '✨',
+    title: 'Other',
+    description: 'Custom content type for your unique needs',
+    value: 'Other'
   }
 ];
 
 function App() {
-  const [view, setView] = useState('gallery'); // 'gallery' or 'form'
+  const [view, setView] = useState('gallery'); // 'gallery' or 'editor'
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [formData, setFormData] = useState({
     productInfo: '',
@@ -75,19 +78,29 @@ function App() {
   });
   const [generatedContent, setGeneratedContent] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [toast, setToast] = useState({ show: false, message: '', type: '' });
+
+  // Floating label states
+  const [focusedFields, setFocusedFields] = useState({
+    productInfo: false,
+    targetAudience: false
+  });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
+  };
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);
     setFormData({ ...formData, contentType: template.value });
-    setView('form');
+    setView('editor');
+    showToast(`${template.title} template selected`, 'success');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
     setGeneratedContent('');
 
     try {
@@ -103,11 +116,12 @@ function App() {
 
       if (response.ok) {
         setGeneratedContent(data.content);
+        showToast('Content generated successfully!', 'success');
       } else {
-        setError(data.error || 'Something went wrong');
+        showToast(data.error || 'Something went wrong', 'error');
       }
     } catch (err) {
-      setError('Failed to connect to the server');
+      showToast('Failed to connect to the server', 'error');
     } finally {
       setLoading(false);
     }
@@ -124,172 +138,170 @@ function App() {
     setView('gallery');
     setSelectedTemplate(null);
     setGeneratedContent('');
-    setError('');
+    setFormData({
+      productInfo: '',
+      targetAudience: '',
+      contentType: ''
+    });
   };
 
-  const filteredTemplates = TEMPLATES.filter(template =>
-    template.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    template.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedContent);
+    showToast('Copied to clipboard!', 'success');
+  };
 
-  const popularTemplates = filteredTemplates.filter(t => t.popular);
-  const otherTemplates = filteredTemplates.filter(t => !t.popular);
+  const handleFocus = (field) => {
+    setFocusedFields({ ...focusedFields, [field]: true });
+  };
+
+  const handleBlur = (field, value) => {
+    if (!value) {
+      setFocusedFields({ ...focusedFields, [field]: false });
+    }
+  };
 
   return (
     <div className="app">
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`toast toast-${toast.type}`}>
+          <span className="toast-icon">
+            {toast.type === 'success' ? '✓' : '⚠'}
+          </span>
+          {toast.message}
+        </div>
+      )}
+
       {view === 'gallery' ? (
         <div className="gallery-view">
           <div className="gallery-header">
-            <div className="header-content">
-              <h1>DK Copy</h1>
-              <p className="tagline">AI-Powered Copywriting Assistant</p>
-            </div>
-            <div className="search-bar">
-              <span className="search-icon">🔍</span>
-              <input
-                type="text"
-                placeholder="Search templates..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+            <h1>DK Copy</h1>
+            <p className="subtitle">AI-Powered Copywriting Assistant</p>
           </div>
 
           <div className="templates-container">
-            {popularTemplates.length > 0 && (
-              <div className="template-section">
-                <h2 className="section-title">
-                  <span className="star-icon">⭐</span>
-                  Popular Templates
-                </h2>
-                <div className="template-grid">
-                  {popularTemplates.map((template) => (
-                    <div
-                      key={template.id}
-                      className="template-card"
-                      onClick={() => handleTemplateSelect(template)}
-                    >
-                      <div className="template-icon">{template.icon}</div>
-                      <h3 className="template-title">{template.title}</h3>
-                      <p className="template-description">{template.description}</p>
-                      <button className="template-btn">Use Template →</button>
-                    </div>
-                  ))}
+            <div className="template-grid">
+              {TEMPLATES.map((template, index) => (
+                <div
+                  key={template.id}
+                  className="template-card"
+                  onClick={() => handleTemplateSelect(template)}
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <div className="template-icon">{template.icon}</div>
+                  <h3 className="template-title">{template.title}</h3>
+                  <p className="template-description">{template.description}</p>
+                  <button className="template-btn">Use Template →</button>
                 </div>
-              </div>
-            )}
-
-            {otherTemplates.length > 0 && (
-              <div className="template-section">
-                <h2 className="section-title">All Templates</h2>
-                <div className="template-grid">
-                  {otherTemplates.map((template) => (
-                    <div
-                      key={template.id}
-                      className="template-card"
-                      onClick={() => handleTemplateSelect(template)}
-                    >
-                      <div className="template-icon">{template.icon}</div>
-                      <h3 className="template-title">{template.title}</h3>
-                      <p className="template-description">{template.description}</p>
-                      <button className="template-btn">Use Template →</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {filteredTemplates.length === 0 && (
-              <div className="no-results">
-                <p>No templates found matching "{searchQuery}"</p>
-              </div>
-            )}
+              ))}
+            </div>
           </div>
         </div>
       ) : (
-        <div className="form-view">
-          <div className="form-header">
-            <button className="back-btn" onClick={handleBackToGallery}>
+        <div className="editor-view">
+          <div className="editor-header">
+            <button className="back-button" onClick={handleBackToGallery}>
               ← Back to Templates
             </button>
             <div className="template-info">
               <span className="template-icon-small">{selectedTemplate?.icon}</span>
-              <h2>{selectedTemplate?.title}</h2>
+              <span className="template-name">{selectedTemplate?.title}</span>
             </div>
           </div>
 
-          <div className="form-container">
-            <form onSubmit={handleSubmit} className="content-form">
-              <div className="form-group">
-                <label htmlFor="productInfo">
-                  Product/Service Information
-                  <span className="required">*</span>
-                </label>
-                <textarea
-                  id="productInfo"
-                  name="productInfo"
-                  value={formData.productInfo}
-                  onChange={handleInputChange}
-                  placeholder="Describe your product or service..."
-                  required
-                  rows="4"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="targetAudience">
-                  Target Audience
-                  <span className="required">*</span>
-                </label>
-                <textarea
-                  id="targetAudience"
-                  name="targetAudience"
-                  value={formData.targetAudience}
-                  onChange={handleInputChange}
-                  placeholder="Describe your target audience..."
-                  required
-                  rows="4"
-                />
-              </div>
-
-              <button type="submit" className="generate-btn" disabled={loading}>
-                {loading ? (
-                  <>
-                    <span className="spinner"></span>
-                    Generating...
-                  </>
-                ) : (
-                  <>✨ Generate Content</>
-                )}
-              </button>
-            </form>
-
-            {error && (
-              <div className="error-message">
-                <span className="error-icon">⚠️</span>
-                {error}
-              </div>
-            )}
-
-            {generatedContent && (
-              <div className="result-container">
-                <div className="result-header">
-                  <h3>Generated Content</h3>
-                  <button
-                    className="copy-btn"
-                    onClick={() => {
-                      navigator.clipboard.writeText(generatedContent);
-                      alert('Copied to clipboard!');
-                    }}
-                  >
-                    📋 Copy
-                  </button>
+          <div className="editor-content">
+            <div className="editor-form">
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <div className="floating-label-wrapper">
+                    <textarea
+                      id="productInfo"
+                      name="productInfo"
+                      value={formData.productInfo}
+                      onChange={handleInputChange}
+                      onFocus={() => handleFocus('productInfo')}
+                      onBlur={(e) => handleBlur('productInfo', e.target.value)}
+                      required
+                      rows="5"
+                    />
+                    <label
+                      htmlFor="productInfo"
+                      className={focusedFields.productInfo || formData.productInfo ? 'active' : ''}
+                    >
+                      Product/Service Information <span className="required">*</span>
+                    </label>
+                  </div>
                 </div>
-                <div className="result-content">
-                  {generatedContent}
+
+                <div className="form-group">
+                  <div className="floating-label-wrapper">
+                    <textarea
+                      id="targetAudience"
+                      name="targetAudience"
+                      value={formData.targetAudience}
+                      onChange={handleInputChange}
+                      onFocus={() => handleFocus('targetAudience')}
+                      onBlur={(e) => handleBlur('targetAudience', e.target.value)}
+                      required
+                      rows="5"
+                    />
+                    <label
+                      htmlFor="targetAudience"
+                      className={focusedFields.targetAudience || formData.targetAudience ? 'active' : ''}
+                    >
+                      Target Audience <span className="required">*</span>
+                    </label>
+                  </div>
                 </div>
-              </div>
-            )}
+
+                <button type="submit" className="generate-button" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <span className="spinner"></span>
+                      Generating...
+                    </>
+                  ) : (
+                    <>✨ Generate Copy</>
+                  )}
+                </button>
+              </form>
+            </div>
+
+            <div className="editor-preview">
+              {loading ? (
+                <div className="loading-skeleton">
+                  <div className="skeleton-header"></div>
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line short"></div>
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line short"></div>
+                </div>
+              ) : generatedContent ? (
+                <div className="preview-result">
+                  <div className="preview-header">
+                    <h3>Generated Content</h3>
+                    <div className="preview-actions">
+                      <button className="action-btn copy-btn" onClick={handleCopy}>
+                        📋 Copy
+                      </button>
+                      <button className="action-btn regenerate-btn" onClick={handleSubmit}>
+                        🔄 Generate Another
+                      </button>
+                    </div>
+                  </div>
+                  <div className="preview-content">
+                    {generatedContent}
+                  </div>
+                </div>
+              ) : (
+                <div className="preview-empty">
+                  <div className="empty-icon">✨</div>
+                  <h3>Ready to generate</h3>
+                  <p>Fill in the form and click "Generate Copy" to see your content appear here</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
