@@ -107,7 +107,7 @@ Example format: ["keyword1", "keyword2", "keyword3"]"""
 
         if keywords:
             parts.append(f"Keywords to weave in naturally: {', '.join(keywords)}")
-            parts.append("IMPORTANT: Use ONLY these keywords (maximum 1-2 mentions each). Do not geenarte keyword variations of synonyms.")
+            parts.append("IMPORTANT: Use ONLY these keywords (maximum 1-2 mentions each). Do not generate keyword variations or synonyms.")
         
         parts.append("\nConstraints:")
         parts.append("- Connect features to outcomes")
