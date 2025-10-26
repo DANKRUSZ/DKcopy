@@ -8,8 +8,8 @@ from anthropic import APIError, RateLimitError, APITimeoutError
 
 router = APIRouter(tags=["copy"])
 
-@router.post("/generate", response_model=CopyResponse)
-async def generate_copy(payload: CopyRequest) -> CopyResponse:
+@router.post("/generate")
+async def generate_copy(payload: CopyRequest):
     try:
         logger.info(f"Generating {payload.content_type} for: {payload.audience[:50]}...")
         
@@ -30,8 +30,8 @@ async def generate_copy(payload: CopyRequest) -> CopyResponse:
         # Generate copy
         text = await llm.generate_copy(payload, keywords)
         
-        # Validate
-        validate_copy_output(text, require_cta=payload.cta)
+       # Validate (now passing content_type)
+        validate_copy_output(text, require_cta=payload.cta, content_type=payload.content_type)
         
         # Calculate cost
         output_tokens = estimate_tokens(text)
@@ -39,17 +39,18 @@ async def generate_copy(payload: CopyRequest) -> CopyResponse:
         
         logger.info(f"✓ Generated {len(text)} chars (~{output_tokens} tokens) - Cost: ${cost}")
         
-        return CopyResponse(
-            generated_copy=text,
-            keywords=keywords,
-            tone_used=payload.tone_of_voice or "default",
-            content_type=payload.content_type,
-            metadata={
+        # Return response matching frontend expectations
+        return {
+            "content": text,  # Frontend expects this
+            "keywords": keywords,
+            "tone_used": payload.tone_of_voice or "default",
+            "content_type": payload.content_type,
+            "metadata": {
                 "status": "ok",
                 "tokens_used": input_tokens + output_tokens,
                 "estimated_cost": cost
             }
-        )
+        }
     
     except ValueError as e:
         logger.error(f"Validation failed: {str(e)}")

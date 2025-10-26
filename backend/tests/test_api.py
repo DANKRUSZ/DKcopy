@@ -12,11 +12,11 @@ def test_generate_copy_success(client, mock_llm):
         "product_info": "An AI tool that drafts proposals",
         "cta": True
     }
-    response = client.post("/api/v1/copy/generate", json=payload)
+    response = client.post("/generate", json=payload)
     assert response.status_code == 200
     
     data = response.json()
-    assert "generated_copy" in data
+    assert "content" in data
     assert "keywords" in data
     assert len(data["keywords"]) > 0
     assert data["content_type"] == "Landing page hero"
@@ -27,7 +27,7 @@ def test_generate_copy_missing_field(client):
         "product_info": "AI tool",
         "cta": True
     }
-    response = client.post("/api/v1/copy/generate", json=payload)
+    response = client.post("/generate", json=payload)
     assert response.status_code == 422
 
 def test_generate_copy_with_keywords(client, mock_llm):
@@ -38,5 +38,5 @@ def test_generate_copy_with_keywords(client, mock_llm):
         "cta": False,
         "keywords": ["custom", "keywords"]
     }
-    response = client.post("/api/v1/copy/generate", json=payload)
+    response = client.post("/generate", json=payload)
     assert response.status_code == 200

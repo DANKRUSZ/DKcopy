@@ -1,9 +1,20 @@
 MAX_COPY_LENGTH = 4000
 
-def validate_copy_output(text: str, require_cta: bool) -> None:
+def validate_copy_output(text: str, require_cta: bool, content_type: str = "") -> None:
     """Validate generated copy meets requirements"""
     if len(text) > MAX_COPY_LENGTH:
         raise ValueError(f"Generated copy too long ({len(text)} chars, max {MAX_COPY_LENGTH})")
+    
+    # Skip CTA check for content types that typically don't need CTAs
+    content_lower = content_type.lower()
+    skip_cta_types = [
+        "subject line",
+        "headline", 
+        "tweet"
+    ]
+    
+    if any(skip_type in content_lower for skip_type in skip_cta_types):
+        return  # Skip CTA validation for these types
     
     if require_cta:
         # Check for common CTA patterns - be more lenient

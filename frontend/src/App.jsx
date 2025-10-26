@@ -124,11 +124,24 @@ function App() {
   };
 
   const handleTemplateSelect = (template) => {
+    // Auto-disable CTA for certain content types that don't need them
+    const noCTATypes = [
+      'Email subject line',
+      'Email Subject Line', 
+      'Tweet',
+      'Headline'
+    ];
+    
+    const shouldHaveCTA = !noCTATypes.some(type => 
+      template.value.toLowerCase().includes(type.toLowerCase())
+    );
+    
     setSelectedTemplate(template);
     setFormData({ 
       ...formData, 
       content_type: template.value,
-      content_type_other: ''
+      content_type_other: '',
+      cta: shouldHaveCTA  // ← Auto-set based on template
     });
     setView('editor');
     showToast(`${template.title} template selected`, 'success');
@@ -167,10 +180,10 @@ function App() {
       const data = await response.json();
 
       if (response.ok) {
-        setGeneratedContent(data.content);
+        setGeneratedContent(data.content);  // ← CHANGED THIS LINE
         showToast('Content generated successfully!', 'success');
       } else {
-        showToast(data.error || 'Something went wrong', 'error');
+        showToast(data.detail || 'Something went wrong', 'error');  // ← Also handle detail
       }
     } catch (err) {
       showToast('Failed to connect to the server', 'error');

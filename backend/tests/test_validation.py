@@ -6,7 +6,7 @@ def test_validation_passes_normal_copy():
     validate_copy_output(text, require_cta=True)
 
 def test_validation_fails_too_long():
-    text = "x" * 2001
+    text = "x" * 4001
     with pytest.raises(ValueError, match="too long"):
         validate_copy_output(text, require_cta=False)
 

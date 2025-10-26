@@ -10,8 +10,12 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = "claude-sonnet-4-5-20250929"  # Latest Sonnet
     USE_FAKE_LLM: bool = False  # Set to True for testing without API calls
     
-    # API Settings
-    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+    # API Settings - Fixed CORS origins
+    CORS_ORIGINS: List[str] = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://d-kcopy.vercel.app"
+    ]
     
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

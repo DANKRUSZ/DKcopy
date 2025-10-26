@@ -157,9 +157,11 @@ Example format: ["keyword1", "keyword2", "keyword3"]"""
         if "product description" in content_lower:
             return "Aim for 200-350 words"
         
-        if "landing page" in content_lower or "hero" in content_lower:
-            return "Aim for 250-400 words"
+        if "landing page" in content_lower and "hero" in content_lower:
+            return "Aim for 250 maximum"
         
+        if "landing page" in content_lower:
+            return "aim for 250 - 400 words"        
         
         if "blog" in content_lower or "article" in content_lower:  
             return "Aim for 800-1200 words for a complete article"
