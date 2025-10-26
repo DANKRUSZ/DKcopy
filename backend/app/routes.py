@@ -6,9 +6,9 @@ from .utils import estimate_tokens, calculate_cost
 from .logger import logger
 from anthropic import APIError, RateLimitError, APITimeoutError
 
-router = APIRouter(prefix="/api/v1", tags=["copy"])
+router = APIRouter(tags=["copy"])
 
-@router.post("/copy/generate", response_model=CopyResponse)
+@router.post("/generate", response_model=CopyResponse)
 async def generate_copy(payload: CopyRequest) -> CopyResponse:
     try:
         logger.info(f"Generating {payload.content_type} for: {payload.audience[:50]}...")
